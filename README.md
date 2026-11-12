@@ -45,18 +45,18 @@ It runs from a menu and keeps running until the user chooses **Exit**.
 
 ---
 
-## ✨ Features at a Glance
+## Features at a Glance
 
 | # | Feature | What it does |
 |---|---------|--------------|
-| 1 | ➕ **Add New Product** | Reads product details, blocks duplicate IDs, stores a dictionary with `.append()` |
-| 2 | 📋 **View All Products** | Prints a table of ID, name, category, price and stock |
-| 3 | 🔍 **Search Product** | Finds products by **ID** or **name** (case-insensitive, partial names work) |
-| 4 | 📦 **Update Stock** | Adds stock to a product *or* sets an exact quantity, then shows the result |
-| 5 | 💰 **Process Sale** | Checks product and stock, calculates total, deducts stock, prints a summary |
-| 6 | 🧾 **View Sales Records** | Lists every completed sale |
-| 7 | 📊 **Store Report** | Totals, revenue, low-stock items, highest and lowest priced products |
-| 8 | 🚪 **Exit** | Ends the program politely |
+| 1 | **Add New Product** | Reads product details, blocks duplicate IDs, stores a dictionary with `.append()` |
+| 2 | **View All Products** | Prints a table of ID, name, category, price and stock |
+| 3 | **Search Product** | Finds products by **ID** or **name** (case-insensitive, partial names work) |
+| 4 | **Update Stock** | Adds stock to a product *or* sets an exact quantity, then shows the result |
+| 5 | **Process Sale** | Checks product and stock, calculates total, deducts stock, prints a summary |
+| 6 | **View Sales Records** | Lists every completed sale |
+| 7 | **Store Report** | Totals, revenue, low-stock items, highest and lowest priced products |
+| 8 | **Exit** | Ends the program politely |
 
 ---
 
@@ -221,7 +221,7 @@ GROCERY STORE (running program)
 
 ---
 
-## 🧠 Code Explanation & Function Hierarchy
+## Code Explanation & Function Hierarchy
 
 `main()` shows the menu in a `while True` loop and uses `if / elif / else` to call the correct function. Choice `8` uses `break` to leave the loop.
 
@@ -364,6 +364,8 @@ smart_grocery_store/
 
 <div align="center">
 
-**Made with Python 🐍, simple logic, clear code.**
+**Assessment 3: Python Lists & Dictionaries**
+
+**Author: Your Name**
 
 </div>
