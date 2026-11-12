@@ -366,6 +366,6 @@ smart_grocery_store/
 
 **Assessment 3: Python Lists & Dictionaries**
 
-**Author: Your Name**
+**Author: Laiba Shehbaz**
 
 </div>
