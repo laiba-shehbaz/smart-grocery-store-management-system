@@ -9,7 +9,9 @@
 ![Interface](https://img.shields.io/badge/Interface-Console%20Menu-15803d)
 ![Tests](https://img.shields.io/badge/Tests-38%20checks%20passing-success)
 ![Data](https://img.shields.io/badge/Data-Lists%20%26%20Dictionaries-orange)
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-Open%20Preview-16a34a?style=for-the-badge&logo=githubpages&logoColor=white)](https://laiba-shehbaz.github.io/smart-grocery-store-management-system/)
 
+🔗 **Live Preview:** https://laiba-shehbaz.github.io/smart-grocery-store-management-system/
 **A simple console application that helps a local grocery store manage products, stock, sales and reports.**
 
 </div>
