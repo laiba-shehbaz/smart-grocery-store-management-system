@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Smart Grocery Store – Live Preview</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;padding:20px;display:flex;justify-content:center;font-family:"Segoe UI",Arial,sans-serif;background:linear-gradient(135deg,#0f766e,#16a34a)}
+.wrap{width:100%;max-width:880px}
+h1{margin:0 0 4px;color:#fff;font-size:1.7rem}
+.sub{margin:0 0 14px;color:#ecfdf5}
+.term{background:#0b1220;border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,.4);overflow:hidden}
+.bar{background:#1e293b;color:#94a3b8;padding:8px 14px;font-size:.85rem}
+#out{margin:0;padding:14px;height:58vh;overflow:auto;color:#d1fae5;font:14px/1.45 Consolas,Menlo,monospace;white-space:pre-wrap}
+.row{display:flex;gap:8px;align-items:center;padding:10px 14px;border-top:1px solid #1e293b;font:14px Consolas,Menlo,monospace}
+#pr{color:#34d399;white-space:pre}
+#in{flex:1;min-width:0;background:transparent;border:0;outline:0;color:#fff;font:inherit}
+.btns{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+button{cursor:pointer;border:0;border-radius:8px;padding:8px 12px;background:#fff;color:#065f46;font-weight:600}
+button:hover{background:#d1fae5}
+.note{margin-top:12px;color:#ecfdf5;font-size:.85rem}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>🛒 Smart Grocery Store System</h1>
+  <p class="sub">Live browser preview of the Python console program (Practice Set 3: Lists &amp; Dictionaries)</p>
+  <div class="term">
+    <div class="bar">● ● ●&nbsp; grocery_store.py</div>
+    <pre id="out"></pre>
+    <div class="row"><span id="pr"></span><input id="in" autocomplete="off" autofocus aria-label="Type your answer and press Enter"></div>
+  </div>
+  <div class="btns" id="btns"></div>
+  <p class="note">Type in the box and press Enter, or tap a menu button. Data lives in memory only and resets on refresh, just like the Python program.</p>
+</div>
+<script>
+const SAMPLE=[
+ {id:101,name:"Milk",category:"Dairy",price:250,stock:20},
+ {id:102,name:"Bread",category:"Bakery",price:120,stock:25},
+ {id:103,name:"Eggs",category:"Dairy",price:300,stock:4},
+ {id:104,name:"Rice",category:"Grains",price:450,stock:20}];
+const LOW_STOCK_LIMIT=5;
+let products=JSON.parse(JSON.stringify(SAMPLE)), sales=[];
+const out=document.getElementById("out"), inp=document.getElementById("in"), pr=document.getElementById("pr");
+let pending=null;
+const print=(t="")=>{out.textContent+=t+"\n";out.scrollTop=out.scrollHeight};
+const ask=p=>new Promise(res=>{pr.textContent=p;inp.focus();pending={res,p}});
+function submit(v){if(!pending)return;const {res,p}=pending;pending=null;print(p+v);pr.textContent="";res(v.trim())}
+inp.addEventListener("keydown",e=>{if(e.key==="Enter"){const v=inp.value;inp.value="";submit(v)}});
+const f2=n=>n.toFixed(2);
+
+// ---- input helpers (same rules as the Python version)
+async function readText(p){while(true){const t=await ask(p);if(t!=="")return t;print("Error: this field cannot be empty. Please try again.")}}
+async function readInt(p,min){while(true){const v=await ask(p);
+  if(!/^[+-]?\d+$/.test(v)){print("Error: please enter a whole number (for example 5).");continue}
+  const n=parseInt(v,10);if(n<min){print(`Error: the number must be ${min} or more.`);continue}return n}}
+async function readPrice(p){while(true){const v=await ask(p);const n=Number(v);
+  if(v===""||Number.isNaN(n)){print("Error: please enter a valid number (for example 99.50).");continue}
+  if(!Number.isFinite(n)||n<=0){print("Error: the price must be a number greater than 0.");continue}return n}}
+
+const findProductById=id=>products.find(p=>p.id===id)||null;
+function printDetails(p){print(`  ID       : ${p.id}`);print(`  Name     : ${p.name}`);print(`  Category : ${p.category}`);print(`  Price    : ${f2(p.price)}`);print(`  Stock    : ${p.stock}`)}
+function printWithPrice(label,price){for(const p of products)if(p.price===price)print(`${label}: ${p.name} (ID ${p.id}) - ${f2(price)}`)}
+
+// ---- menu option functions
+async function addProduct(){
+  print("\n--- Add New Product ---");
+  const id=await readInt("Enter Product ID: ",1);
+  if(findProductById(id)){print("Error: A product with this ID already exists. Nothing was added.");return}
+  const name=await readText("Enter product name: "), category=await readText("Enter category: ");
+  const price=await readPrice("Enter price: "), stock=await readInt("Enter stock quantity: ",0);
+  products.push({id,name,category,price,stock});
+  print(`Product '${name}' added successfully.`);
+}
+function viewAllProducts(){
+  print("\n--- All Products ---");
+  if(!products.length){print("No products available.");return}
+  print("ID".padEnd(8)+"Name".padEnd(18)+"Category".padEnd(14)+"Price".padStart(10)+"Stock".padStart(8));
+  print("-".repeat(58));
+  for(const p of products)print(String(p.id).padEnd(8)+p.name.padEnd(18)+p.category.padEnd(14)+f2(p.price).padStart(10)+String(p.stock).padStart(8));
+}
+async function searchProduct(){
+  print("\n--- Search Product ---");
+  const k=await readText("Enter Product ID or name: "); let m=[];
+  if(/^\d+$/.test(k)){const p=findProductById(parseInt(k,10));if(p)m.push(p)}
+  else m=products.filter(p=>p.name.toLowerCase().includes(k.toLowerCase()));
+  if(!m.length){print("Product not found.");return}
+  print(`Found ${m.length} product(s):`);for(const p of m){printDetails(p);print()}
+}
+async function updateStock(){
+  print("\n--- Update Product Stock ---");
+  const p=findProductById(await readInt("Enter Product ID: ",1));
+  if(!p){print("Error: Product not found.");return}
+  print(`Current stock of ${p.name}: ${p.stock}`);print("1. Add stock");print("2. Set new stock quantity");
+  const c=await ask("Enter your choice (1 or 2): ");
+  if(c==="1")p.stock+=await readInt("Enter quantity to add: ",1);
+  else if(c==="2")p.stock=await readInt("Enter new stock quantity: ",0);
+  else{print("Error: Invalid choice. Stock was not changed.");return}
+  print(`Updated stock of ${p.name}: ${p.stock}`);
+}
+async function processSale(){
+  print("\n--- Process Customer Sale ---");
+  const p=findProductById(await readInt("Enter Product ID: ",1));
+  if(!p){print("Error: Product not found. Sale cancelled.");return}
+  const q=await readInt("Enter purchase quantity: ",1);
+  if(q>p.stock){print(`Error: Insufficient stock. Only ${p.stock} unit(s) of ${p.name} available. Sale cancelled.`);return}
+  const total=p.price*q;p.stock-=q;
+  sales.push({product_id:p.id,product_name:p.name,quantity_sold:q,total_amount:total});
+  print("\n--- Purchase Summary ---");
+  print(`Product        : ${p.name} (ID ${p.id})`);print(`Unit Price     : ${f2(p.price)}`);
+  print(`Quantity       : ${q}`);print(`Total Price    : ${f2(total)}`);print(`Remaining Stock: ${p.stock}`);
+}
+function viewSales(){
+  print("\n--- Sales Records ---");
+  if(!sales.length){print("No sales recorded yet.");return}
+  print("No.".padEnd(6)+"Product ID".padEnd(12)+"Product".padEnd(18)+"Qty".padStart(5)+"Total".padStart(12));
+  print("-".repeat(53));
+  sales.forEach((s,i)=>print(String(i+1).padEnd(6)+String(s.product_id).padEnd(12)+s.product_name.padEnd(18)+String(s.quantity_sold).padStart(5)+f2(s.total_amount).padStart(12)));
+}
+function generateReport(){
+  print("\n====================================");print("          STORE REPORT");print("====================================");
+  if(!products.length){print("No products available. Nothing to report.");return}
+  const stock=products.reduce((a,p)=>a+p.stock,0), revenue=sales.reduce((a,s)=>a+s.total_amount,0);
+  print(`Total number of products : ${products.length}`);print(`Total available stock    : ${stock}`);
+  print(`Total sales transactions : ${sales.length}`);print(`Total revenue generated  : ${f2(revenue)}`);
+  print(`\nProducts with stock below ${LOW_STOCK_LIMIT} units:`);
+  const low=products.filter(p=>p.stock<LOW_STOCK_LIMIT);
+  if(low.length)low.forEach(p=>print(`  - ${p.name} (ID ${p.id}): ${p.stock} left`));else print("  None");
+  const prices=products.map(p=>p.price);print();
+  printWithPrice("Highest priced product",Math.max(...prices));printWithPrice("Lowest priced product ",Math.min(...prices));
+}
+function showMenu(){
+  print("\n====================================");print("SMART GROCERY STORE SYSTEM");print("====================================\n");
+  ["Add New Product","View All Products","Search Product","Update Product Stock","Process Customer Sale","View Sales Records","Generate Store Report","Exit"].forEach((t,i)=>print(`${i+1}. ${t}`));
+  print();
+}
+async function main(){
+  while(true){
+    showMenu();const c=await ask("Enter your choice: ");
+    if(c==="1")await addProduct();else if(c==="2")viewAllProducts();else if(c==="3")await searchProduct();
+    else if(c==="4")await updateStock();else if(c==="5")await processSale();else if(c==="6")viewSales();
+    else if(c==="7")generateReport();
+    else if(c==="8"){print("Thank you for using the Smart Grocery Store System. Goodbye!");break}
+    else print("Error: Invalid choice. Please enter a number from 1 to 8.");
+  }
+  print("\n(Program ended. Press Restart to run again.)");
+}
+// quick menu buttons
+const btns=document.getElementById("btns");
+["Add","View","Search","Update Stock","Sale","Sales Records","Report","Exit"].forEach((t,i)=>{
+  const b=document.createElement("button");b.textContent=`${i+1}. ${t}`;b.onclick=()=>submit(String(i+1));btns.appendChild(b)});
+const r=document.createElement("button");r.textContent="↻ Restart";r.onclick=()=>location.reload();btns.appendChild(r);
+main();
+</script>
+</body>
+</html>
